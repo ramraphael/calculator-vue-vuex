@@ -1,0 +1,8 @@
+{
+  "extends": ["airbnb", "prettier", "plugin:vue/essential", "plugin:prettier/recommended"],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": ["error"],
+    "vue/component-name-in-template-casing": ["error", "PascalCase"]
+  }
+}
