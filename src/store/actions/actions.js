@@ -32,11 +32,9 @@ export default {
     [TOGGLE_POSITIVE_NEGATIVE]({ commit, state }) {
       // Only currentOperand can be toggled, remove or add '-' as first character
       const { currentOperand } = state;
-      if (currentOperand) {
-        currentOperand[0] === '-'
-          ? commit(SET_CURRENT_OPERAND, currentOperand.slice(1))
-          : commit(SET_CURRENT_OPERAND, `-${currentOperand}`);
-      }
+      currentOperand[0] === '-'
+        ? commit(SET_CURRENT_OPERAND, currentOperand.slice(1))
+        : commit(SET_CURRENT_OPERAND, `-${currentOperand}`);
     },
     [CLICK_NUMBER]({ commit, state }, selectedNumber) {
       // If result exists, reset it. Append selected number to current operand
