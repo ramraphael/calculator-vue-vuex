@@ -17,19 +17,21 @@ import {
   CLICK_NUMBER,
   CLICK_DECIMAL,
   CLICK_OPERATOR,
-  CLICK_EQUALS,
+  EVALUATE_RESULT,
   CHECK_IF_CONTINUING_OPERATION
 } from './actionTypes';
 
 export default {
   actions: {
+    // Clear all properties
     [CLEAR_ALL]({ commit }) {
-      // Clear all properties
       commit(RESET_CURRENT_OPERAND);
       commit(RESET_FIRST_OPERAND);
       commit(RESET_CURRENT_RESULT);
       commit(RESET_OPERATOR);
     },
+    // Toggles leading '-' on currentOperand
+    // If currentResult exists, currentOperand set to currentResult and currentResult is reset
     [TOGGLE_POSITIVE_NEGATIVE]({ commit, dispatch, state }) {
       // Only currentOperand can be toggled, remove or add '-' as first character
       dispatch(CHECK_IF_CONTINUING_OPERATION);
@@ -38,14 +40,16 @@ export default {
         ? commit(SET_CURRENT_OPERAND, currentOperand.slice(1))
         : commit(SET_CURRENT_OPERAND, '-'.concat(currentOperand));
     },
+    // Resets currentResult if it exists
+    // Otherwise appends selectedNumber to currentOperand
     [CLICK_NUMBER]({ commit, state }, selectedNumber) {
-      // If result exists, reset it. Append selected number to current operand
       const { currentResult, currentOperand } = state;
       if (currentResult) {
         commit(RESET_CURRENT_RESULT);
       }
       commit(SET_CURRENT_OPERAND, currentOperand.concat(selectedNumber));
     },
+    // Checks if continuing operation, then append decimal point if one doesn't exist
     [CLICK_DECIMAL]({ commit, dispatch, state }) {
       dispatch(CHECK_IF_CONTINUING_OPERATION);
       const { currentOperand } = state;
@@ -56,15 +60,14 @@ export default {
         commit(SET_CURRENT_OPERAND, currentOperand.concat('.'));
       }
     },
-    [CLICK_OPERATOR]({ commit, state, getters }, selectedOperator) {
-      // If both firstOperand and currentOperand exist, evaluate and use result as first operand
-      // Similary, use currentResult as first operand if it's already been calculated
-      const { firstOperand, currentOperand, currentResult } = state;
-      const { evaluate } = getters;
-      if (firstOperand && currentOperand) {
-        commit(SET_FIRST_OPERAND, evaluate());
-        commit(RESET_CURRENT_OPERAND);
-      } else if (currentResult) {
+    // Updates operator
+    // Evaluate result. If currentResult exists, uses it as first operand
+    // Otherwise sets firstOperand to currentOperand
+    // Resets currentOperand
+    [CLICK_OPERATOR]({ commit, dispatch, state }, selectedOperator) {
+      dispatch(EVALUATE_RESULT);
+      const { currentOperand, currentResult } = state;
+      if (currentResult) {
         commit(SET_FIRST_OPERAND, currentResult);
         commit(RESET_CURRENT_RESULT);
         commit(RESET_CURRENT_OPERAND);
@@ -74,16 +77,19 @@ export default {
       }
       commit(SET_OPERATOR, selectedOperator);
     },
-    [CLICK_EQUALS]({ commit, state, getters }) {
+    // Sets currentResult and resets first and current operands
+    [EVALUATE_RESULT]({ commit, state, getters }) {
       // Only do calculations if there are no current results, and first and current operands exist
       const { currentResult, firstOperand, currentOperand } = state;
-      const { evaluate } = getters;
+      const { getResult } = getters;
       if (!currentResult && firstOperand && currentOperand) {
-        commit(SET_CURRENT_RESULT, evaluate());
+        commit(SET_CURRENT_RESULT, getResult());
         commit(RESET_FIRST_OPERAND);
         commit(RESET_CURRENT_OPERAND);
       }
     },
+    // Checks for continuing operations
+    // Sets currentOperand to currentResult and resets currentResult
     [CHECK_IF_CONTINUING_OPERATION]({ commit, state }) {
       const { currentOperand, currentResult } = state;
       if (!currentOperand && currentResult) {

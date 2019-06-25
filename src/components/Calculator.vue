@@ -24,7 +24,7 @@ import {
   CLICK_NUMBER,
   CLICK_DECIMAL,
   CLICK_OPERATOR,
-  CLICK_EQUALS,
+  EVALUATE_RESULT,
   KEYPRESS
 } from '../store/actions/actionTypes';
 
@@ -44,10 +44,10 @@ export default {
       clickNumber: CLICK_NUMBER,
       clickDecimal: CLICK_DECIMAL,
       clickOperator: CLICK_OPERATOR,
-      clickEquals: CLICK_EQUALS
+      clickEquals: EVALUATE_RESULT
     }),
+    // Keydown event handler
     onKeyPress(e) {
-      // handler function for keydown event listener
       const {key} = e
       if (key.length === 1 && /[0-9]/.test(key)) {
         this.clickNumber(key);
