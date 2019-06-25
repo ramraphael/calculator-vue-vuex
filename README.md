@@ -6,7 +6,7 @@
 
 ## Stretch features I didn't have time for
 - Dynamic font-size for the display to handle the overflow
-- `bigInts` (using a third party library) to handle number overflow
+- **`bigInts`** (using a third party library) to handle number overflow
 - A more accurate font choice
 - Global Light/dark theme
 - Functioning window buttons =D
