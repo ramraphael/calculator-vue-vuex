@@ -17,7 +17,8 @@ import {
   CLICK_NUMBER,
   CLICK_DECIMAL,
   CLICK_OPERATOR,
-  CLICK_EQUALS
+  CLICK_EQUALS,
+  CHECK_IF_CONTINUING_OPERATION
 } from './actionTypes';
 
 export default {
@@ -29,12 +30,13 @@ export default {
       commit(RESET_CURRENT_RESULT);
       commit(RESET_OPERATOR);
     },
-    [TOGGLE_POSITIVE_NEGATIVE]({ commit, state }) {
+    [TOGGLE_POSITIVE_NEGATIVE]({ commit, dispatch, state }) {
       // Only currentOperand can be toggled, remove or add '-' as first character
+      dispatch(CHECK_IF_CONTINUING_OPERATION);
       const { currentOperand } = state;
       currentOperand[0] === '-'
         ? commit(SET_CURRENT_OPERAND, currentOperand.slice(1))
-        : commit(SET_CURRENT_OPERAND, `-${currentOperand}`);
+        : commit(SET_CURRENT_OPERAND, '-'.concat(currentOperand));
     },
     [CLICK_NUMBER]({ commit, state }, selectedNumber) {
       // If result exists, reset it. Append selected number to current operand
@@ -44,12 +46,13 @@ export default {
       }
       commit(SET_CURRENT_OPERAND, currentOperand.concat(selectedNumber));
     },
-    [CLICK_DECIMAL]({ commit, state }) {
+    [CLICK_DECIMAL]({ commit, dispatch, state }) {
+      dispatch(CHECK_IF_CONTINUING_OPERATION);
       const { currentOperand } = state;
       if (!currentOperand) {
         commit(SET_CURRENT_OPERAND, '0.');
       } else if (!currentOperand.includes('.')) {
-        // Concat more declarative than template literals or '+' for strings
+        // Concat more readable than template literals or '+' for strings
         commit(SET_CURRENT_OPERAND, currentOperand.concat('.'));
       }
     },
@@ -79,6 +82,13 @@ export default {
         commit(SET_CURRENT_RESULT, evaluate());
         commit(RESET_FIRST_OPERAND);
         commit(RESET_CURRENT_OPERAND);
+      }
+    },
+    [CHECK_IF_CONTINUING_OPERATION]({ commit, state }) {
+      const { currentOperand, currentResult } = state;
+      if (!currentOperand && currentResult) {
+        commit(SET_CURRENT_OPERAND, currentResult);
+        commit(RESET_CURRENT_RESULT);
       }
     }
   }
